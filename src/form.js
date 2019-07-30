@@ -1,10 +1,15 @@
 import React from 'react';
 import './styles.css';
+import './anim.css';
+
 
 class Form extends React.Component{
     constructor(props){
         super(props);
-        this.state={value1:"",value2:"",value3:"",value4:"",value5:"",value6:""};
+        this.state={value1:"",value2:"",value3:"",value4:"",value5:"",value6:"",  offsetX: '',
+        offsetY: '',
+        friction: 1 / 32};
+        this._mouseMove = this._mouseMove.bind(this);
         this.username=this.username.bind(this);
         this.email=this.email.bind(this);
         this.dob=this.dob.bind(this);
@@ -13,6 +18,26 @@ class Form extends React.Component{
         this.eduqual=this.eduqual.bind(this);
         this.handleSubmit=this.handleSubmit.bind(this);
     }
+
+      componentDidMount() {
+        document.addEventListener('mousemove', this._mouseMove);
+      }
+      componentWillUnmount() {
+        document.removeEventListener('mousemove', this._mouseMove);
+      }
+      _mouseMove(e) {
+        let followX = (window.innerWidth / 2 - e.clientX);
+        let followY = (window.innerHeight / 2 - e.clientY);
+    
+        let x = 0,
+            y = 0;
+        x +=( (-followX - x) * this.state.friction);
+        y += (followY - y) * this.state.friction;
+        this.setState({
+          offsetX: x,
+          offsetY: y
+        });
+      }
 
     username(event){
         this.setState({value1:event.target.value});
@@ -87,8 +112,17 @@ class Form extends React.Component{
     }
 
     render(props){
+
+        let offset = {
+            transform: `translate(-50%, -50%) perspective(600px)
+                        rotateY(${this.state.offsetX}deg)
+                        rotateX(${this.state.offsetY}deg)`
+                       }
+
         return(
-            <div class="outer">
+            <div className='wrapper' style={offset}>
+          <div className="shape">
+          <div class="outer">
             <div class="main">
                 <h1>Form</h1>
                 <div class="progress">
@@ -152,6 +186,11 @@ class Form extends React.Component{
                 </form>
                 </div>
                 </div>
+          </div>
+          <div className="shape2">
+          </div>
+          </div>
+           
         );
     }
 }
